@@ -1,28 +1,51 @@
-# Для избежания некорректного вывода запускайте линейный вызов и многопроцессный по отдельности, предварительно закомментировав другой.
+import datetime
+import multiprocessing
+
 
 def read_info(name: str):
     """
     Во время считывания добавлять каждую строку в список all_data.
-    :param name:  название файла
+    :param name: название файла
     """
     # Создавать локальный список all_data.
+    all_data = []
+
     # Открывать файл name для чтения.
-    # Считывать информацию построчно (readline), пока считанная строка не окажется пустой.
+    with open(name, 'r') as f:
+        while True:
+            # Считывать информацию построчно (readline),
+            line = f.readline()
+            # пока считанная строка не окажется пустой.
+            if line == '':
+                break
     # Выводить или возвращать список all_data в функции не нужно.
 
 
-def test_single_thread(filenames):
+def test_single_thread(filenames: list[str]):
+    start = datetime.datetime.now()
+
     # Вызовите функцию read_info для каждого файла по очереди (линейно)
+    for name in filenames:
+        read_info(name)
+
     # и измерьте время выполнения и выведите его в консоль.
-    pass
+    stop = datetime.datetime.now()
+    print(stop-start, "(линейный)")
 
 
-def test_multiprocessing(filenames):
+def test_multiprocessing(filenames: list[str]):
+    start = datetime.datetime.now()
+
     # Вызовите функцию read_info для каждого файла, используя многопроцессный подход:
     # контекстный менеджер with и объект Pool.
-    # Для вызова функции используйте метод map, передав в него функцию read_info и список названий файлов.
+    pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
+    with pool as p:
+        # Для вызова функции используйте метод map, передав в него функцию read_info и список названий файлов.
+        p.map(read_info, filenames)
+    stop = datetime.datetime.now()
+
     # Измерьте время выполнения и выведите его в консоль.
-    pass
+    print(stop-start, "(многопроцессный)")
 
 
 def test():
@@ -40,6 +63,7 @@ def test():
     0:00:03.046163 (линейный)
     0:00:01.092300 (многопроцессный)
     """
+
 
 if __name__ == '__main__':
     test()
